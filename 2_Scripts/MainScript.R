@@ -81,65 +81,20 @@ stargazer(yield_function, variation_function,
 
 ### 2.1 Import Data ###############################################################
 
-### Fertilizer prices 
-f_data <- read_csv("1_Data/FertilizerPrices.csv")
-
-ggplot(f_data, aes(x = Date, color = Product, fill = Product)) +
-  geom_ribbon(aes(ymin = Min_Price, ymax = Max_Price), alpha = 0.2, color = NA) +
-  geom_line(aes(y = Avg_Price), linewidth = 0.8) +
-  facet_wrap(~ Product, scales = "fixed", ncol = 3) +
-  labs(y = "Price (€/100 kg)",
-       x = "Date") +
-  theme_minimal() +
-  theme(legend.position = "none")
-
-### Wheat prices 
-w_data <- read_csv("1_Data/Wheatprices.csv")
-
-ggplot(w_data, aes(x = Date, color = Product, fill = Product)) +
-  geom_ribbon(aes(ymin = Min_Price, ymax = Max_Price), alpha = 0.2, color = NA) +
-  geom_line(aes(y = Avg_Price), linewidth = 0.8) +
-  scale_color_brewer(palette = "Dark2") +
-  scale_fill_brewer(palette = "Set2") +
-  labs(y = "Price (€/100 kg)",
-       x = "Date") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
+dat <- read_csv("1_Data/Adjusted_Prices.csv") |> 
+  rename(date = grid_date)
 
 
 ### 2.2 QVAR and copula #############################################################
 
-f_data <- f_data[f_data[[2]] == "CAN", ] # Keep only CAN data
-w_data <- w_data[w_data[[2]] == "Bread_Wheat", ] # alt. 'Feed_Wheat'
-
 # Check time ranges
-range(f_data$Date)
-range(w_data$Date)
+range(dat$date)
 
 # Check time intervals (see if regularly spaced)
-diff(f_data$Date) 
-diff(w_data$Date)  
-
-# Merge datasets on common dates
-dat <- inner_join(w_data, f_data, by = "Date") |> # keep only 'common date'-datapoints  
-  rename(w_p = Avg_Price.x, f_p = Avg_Price.y) |> 
-  dplyr::select(Date, w_p, f_p) |>
-  filter(Date >= as.Date("2009-01-01")) # Remove pre-2009 obs. (monthly up until that point)
-
-range(dat$Date)
-diff(dat$Date) 
-median(diff(dat$Date)) 
-
-# check for time intervals that are not 14 days
-sum(diff(dat$Date) != 14)
-sum(diff(dat$Date) == 14)
-sum(diff(dat$Date) > 21)
-
-# we dont have regular 14-day intervals, data is recorder every 1st and 3rd monday of the month (sometimes 3 week gaps are introduced)
-# do we need to ensure regular time intervals?
+diff(dat$date) 
 
 # plot prices
-price_plot <- ggplot(dat, aes(x = Date)) +  
+price_plot <- ggplot(dat, aes(x = date)) +  
   geom_line(aes(y = f_p,  linetype = "Calcium Ammonium Nitrate price"), linewidth = 0.5) +
   geom_line(aes(y = w_p,  linetype = "Wheat price"), linewidth = 0.5) +
   scale_linetype_manual(values = c("Calcium Ammonium Nitrate price" = "dashed", "Wheat price" = "solid")) +
@@ -180,13 +135,13 @@ pp.test(dif_dat$f_p)
 
 
 # plot differenced prices
-plot_dif_w <- ggplot(dif_dat, aes(x = Date)) +
+plot_dif_w <- ggplot(dif_dat, aes(x = date)) +
   geom_line(aes(y = w_p), linewidth = 0.5) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(y = "Wheat", x = NULL) +
   theme_classic()
 
-plot_dif_f <- ggplot(dif_dat, aes(x = Date)) +
+plot_dif_f <- ggplot(dif_dat, aes(x = date)) +
   geom_line(aes(y = f_p), linewidth = 0.5) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(y = "Fertilizer", x = NULL) +
