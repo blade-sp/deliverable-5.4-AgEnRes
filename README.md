@@ -1,4 +1,4 @@
-# Behavioral Price Risk Management
+# Development of Input Price Risk Management Tools
 
 This repository contains the data and R code for Deliverable 5.4 of the [AgEnRes](https://agenres.eu/) project "Development of Input Price Risk Management Tools".
 
