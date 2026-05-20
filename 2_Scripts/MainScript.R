@@ -756,6 +756,8 @@ for (f in 1:ntau) {
 
 # Test stability at tau = 0.5,0.5
 t.test(MRev[, 3, 3], mu = 1)
+all(qMRev[2, , ] < 1) # Check if all moduli are below 1 up to 95th percentile
+all(qMRev[3, , ] < 1) # 99th percentile
 
 
 # ===============================================================================
